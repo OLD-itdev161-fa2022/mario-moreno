@@ -29,6 +29,5 @@ app.post("api/users", (req, res) => {
     res.send(req.body);
 });
 
-
 //connection listener
 app.listen(3000, () => console.log("express server running on port 3000"));
