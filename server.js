@@ -22,9 +22,9 @@ app.get("/", (req, res) =>
 
 /** 
  * @route POST api/users 
- * @desc Register User
+ * @desc Register user
 */
-app.post("api/users", (req, res) => {
+app.post("/api/users", (req, res) => {
     console.log(req.body);
     res.send(req.body);
 });
