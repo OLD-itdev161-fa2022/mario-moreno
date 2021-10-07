@@ -48,29 +48,36 @@ app.post("/api/users",
         }else{
             const {name, email, password} = req.body;
             try {
+
+                //check if user exist
                 let user = await User.findOne({email: email});
                 if (user) {
                     return res.status(400)
                     .json({errors: [{message: "User already exists."}]});
                 }
 
+                //creates new user
                 user = new User({
                     name: name,
                     email: email,
                     password: password
                 });
 
+                //Encrypts password
                 const salt = await bcrypt.genSalt(10);
                 user.password = await bcrypt.hash(password, salt);
 
+                //save user to db and return
                 await user.save();
                 
+                //creates payload
                 const payload = {
                     user:{
                         id: user.id
                     }
                 };
 
+                //checks token
                 jwt.sign(payload, config.get("jwtSecret"),
                     {expiresIn: "10hr"},
                     (err, token) => {
@@ -80,13 +87,11 @@ app.post("/api/users",
                 );
                 
             } catch (error){
-
                 res.status(500).send("Server Error!");
-
             }
         }
-       
-    });
+    }
+);
 
 //connection listener
 const port = 5000;
