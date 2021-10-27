@@ -6,6 +6,7 @@ import config from "config";
 import bcrypt from "bcryptjs";
 import User from "./models/User";
 import cors from "cors";
+import auth from "./middleware/auth";
 
 //initialize express application
 const app = express();
@@ -92,6 +93,16 @@ app.post("/api/users",
         }
     }
 );
+
+app.get("/api/auth", auth, async (req, res) =>{
+    try {
+        const user = await User.findById(req.user.id);
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).send("Unknown server error");
+        
+    }
+});
 
 //connection listener
 const port = 5000;
