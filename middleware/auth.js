@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import config from "config";
 
-const auth = (req, res) => {
+const auth = (req, res, next) => {
     const token = req.header("x-auth-token");
     const secret = config.get("jwtSecret");
 
@@ -14,7 +14,6 @@ const auth = (req, res) => {
     try {
         const decodedToken = jwt.verify(token, secret);
         req.user = decodedToken.user;
-        
         next();
         
     } catch (error) {
