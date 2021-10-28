@@ -14,13 +14,14 @@ const auth = (req, res) => {
     try {
         const decodedToken = jwt.verify(token, secret);
         req.user = decodedToken.user;
+        
         next();
         
     } catch (error) {
-        res.status(401)
-        .json({message: "Invalid authentication token. Authorization failed."})
-
+        res
+        .status(401)
+        .json({message: "Invalid authentication token. Authorization failed."});
     }
-}
+};
 
 export default auth;
