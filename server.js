@@ -104,6 +104,39 @@ app.get("/api/auth", auth, async (req, res) =>{
     }
 });
 
+app.post("/api/login", 
+[
+    check("email", "Please enter a valid email").isEmail(),
+    check("password", "A password is required").exists()
+],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({errors: errors.array()});
+        }else{
+            try {
+                //check if user exist
+                let user = await User.findOne({email: email});
+                if (!user) {
+                    return res.status(400).json({errors: [{msg: "Invalid email or password"}]});
+                }
+                //check password
+                const match = await bcrypt.compare(password, user.password);
+                if (!match) {
+                    return res.status(400).json({errors: [{msg: "Invalid email or password"}]});
+                }
+
+                //generate and return a jwt token
+                returnToken(user, res);
+
+            } catch (error) {
+                res.status(500).send("Server Error.");
+                
+            }
+        }
+    }
+);
+
 //connection listener
 const port = 5000;
 app.listen(port, () => console.log(`express server running on port ${port}`));
