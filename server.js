@@ -49,7 +49,6 @@ app.post("/api/users",
         }else{
             const {name, email, password} = req.body;
             try {
-
                 //check if user exist
                 let user = await User.findOne({email: email});
                 if (user) {
@@ -71,21 +70,8 @@ app.post("/api/users",
                 //save user to db and return
                 await user.save();
                 
-                //creates payload
-                const payload = {
-                    user:{
-                        id: user.id
-                    }
-                };
-
-                //checks token
-                jwt.sign(payload, config.get("jwtSecret"),
-                    {expiresIn: "10hr"},
-                    (err, token) => {
-                        if (err) throw err; 
-                        res.json({token: token});
-                    }
-                );
+                //Generate and return jwt token
+               returnToken(user, res);
                 
             } catch (error){
                 res.status(500).send("Server Error!");
@@ -114,6 +100,7 @@ app.post("/api/login",
         if (!errors.isEmpty()) {
             return res.status(422).json({errors: errors.array()});
         }else{
+            const {email, password} = req.body;
             try {
                 //check if user exist
                 let user = await User.findOne({email: email});
@@ -136,6 +123,24 @@ app.post("/api/login",
         }
     }
 );
+
+const returnToken = (user, res) => {
+    const payload = {
+        user:{
+        id: user.id
+        }
+    };
+
+    jwt.sign(
+        payload,
+        config.get("jwtSecret"),
+        {expiresIn: "10hr"},
+        (err, token) => {
+            if (err) throw err; 
+            res.json({token: token});
+        }
+    );
+}
 
 //connection listener
 const port = 5000;
