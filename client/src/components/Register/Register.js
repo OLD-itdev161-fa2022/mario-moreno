@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 
-const Register =({authenticatedUser})=>{
+const Register =({authenticateUser})=>{
     let history = useHistory();
     const [userData, setUserData] = useState({
         name: "",
@@ -31,7 +31,7 @@ const Register =({authenticatedUser})=>{
                 email: email,
                 password: password
             }
-             try {
+            try {
                 const config = {
                     headers: {
                         "Content-Type": "application/json"
@@ -54,7 +54,7 @@ const Register =({authenticatedUser})=>{
                     
                 }
 
-                authenticatedUser();
+                authenticateUser();
         }
     }
     return(
@@ -68,7 +68,7 @@ const Register =({authenticatedUser})=>{
                     value= {name}
                     onChange = {e => onChange(e)}/>
             </div>
-             <div>
+            <div>
                 <input 
                     type= "text"
                     placeholder="Email"
@@ -97,7 +97,7 @@ const Register =({authenticatedUser})=>{
                 <button onClick = {()=> registerUser()}>Register</button>
             </div>
             <div>
-                {errors && errors.map(error => <div key = {error.msg}></div>)}
+                {errors && errors.map(error => <div key = {error.msg}>{error.msg}</div>)}
             </div>
         </div>
     )

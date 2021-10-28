@@ -39,7 +39,7 @@ authenticateUser = () => {
         "x-auth-token": token
       }
     }
-    axios.get("http://localhost:/5000/api/auth", config)
+    axios.get("http://localhost:5000/api/auth", config)
     .then((response) => {
       localStorage.setItem("user", response.data.name)
       this.setState({user: response.data.name})
@@ -48,7 +48,7 @@ authenticateUser = () => {
       localStorage.removeItem("user");
       this.setState({user: null});
       console.error(`Error logging in: ${error}`);
-    })
+    });
   }
 }
 
@@ -77,8 +77,7 @@ logOut = () => {
               <Link to ="/register">Register</Link>
             </li>
             <li>
-            {user ? 
-              <Link to= "" onClick = {this.logOut}>Log out</Link>:
+            {user ? <Link to= "" onClick = {this.logOut}>Log out</Link> :
               <Link to ="/login">Login</Link>
             }
             </li>

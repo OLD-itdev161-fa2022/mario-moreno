@@ -53,7 +53,7 @@ app.post("/api/users",
                 let user = await User.findOne({email: email});
                 if (user) {
                     return res.status(400)
-                    .json({errors: [{message: "User already exists."}]});
+                    .json({errors: [{msg: "User already exists."}]});
                 }
 
                 //creates new user
