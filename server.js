@@ -6,6 +6,7 @@ import config from "config";
 import bcrypt from "bcryptjs";
 import User from "./models/User";
 import cors from "cors";
+import auth from "./middleware/auth";
 
 //initialize express application
 const app = express();
@@ -48,12 +49,11 @@ app.post("/api/users",
         }else{
             const {name, email, password} = req.body;
             try {
-
                 //check if user exist
                 let user = await User.findOne({email: email});
                 if (user) {
                     return res.status(400)
-                    .json({errors: [{message: "User already exists."}]});
+                    .json({errors: [{msg: "User already exists."}]});
                 }
 
                 //creates new user
@@ -70,21 +70,8 @@ app.post("/api/users",
                 //save user to db and return
                 await user.save();
                 
-                //creates payload
-                const payload = {
-                    user:{
-                        id: user.id
-                    }
-                };
-
-                //checks token
-                jwt.sign(payload, config.get("jwtSecret"),
-                    {expiresIn: "10hr"},
-                    (err, token) => {
-                        if (err) throw err; 
-                        res.json({token: token});
-                    }
-                );
+                //Generate and return jwt token
+               returnToken(user, res);
                 
             } catch (error){
                 res.status(500).send("Server Error!");
@@ -92,6 +79,68 @@ app.post("/api/users",
         }
     }
 );
+
+app.get("/api/auth", auth, async (req, res) =>{
+    try {
+        const user = await User.findById(req.user.id);
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).send("Unknown server error");
+        
+    }
+});
+
+app.post("/api/login", 
+[
+    check("email", "Please enter a valid email").isEmail(),
+    check("password", "A password is required").exists()
+],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({errors: errors.array()});
+        }else{
+            const {email, password} = req.body;
+            try {
+                //check if user exist
+                let user = await User.findOne({email: email});
+                if (!user) {
+                    return res.status(400).json({errors: [{msg: "Invalid email or password"}]});
+                }
+                //check password
+                const match = await bcrypt.compare(password, user.password);
+                if (!match) {
+                    return res.status(400).json({errors: [{msg: "Invalid email or password"}]});
+                }
+
+                //generate and return a jwt token
+                returnToken(user, res);
+
+            } catch (error) {
+                res.status(500).send("Server Error.");
+                
+            }
+        }
+    }
+);
+
+const returnToken = (user, res) => {
+    const payload = {
+        user:{
+        id: user.id
+        }
+    };
+
+    jwt.sign(
+        payload,
+        config.get("jwtSecret"),
+        {expiresIn: "10hr"},
+        (err, token) => {
+            if (err) throw err; 
+            res.json({token: token});
+        }
+    );
+}
 
 //connection listener
 const port = 5000;
