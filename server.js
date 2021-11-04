@@ -1,12 +1,13 @@
 import express from "express";
-import connectDatabase from "./config/db";
-import {check, validationResult} from "express-validator";
-import jwt from "jsonwebtoken";
-import config from "config";
-import bcrypt from "bcryptjs";
-import User from "./models/User";
 import cors from "cors";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import {check, validationResult} from "express-validator";
+import connectDatabase from "./config/db";
+import config from "config";
+import User from "./models/User";
 import auth from "./middleware/auth";
+import Post from "./models/Post";
 
 //initialize express application
 const app = express();
@@ -141,6 +142,124 @@ const returnToken = (user, res) => {
         }
     );
 }
+
+app.post("/api/posts",
+    [
+        auth,
+        [
+            check("title", "Title text is required").not().isEmpty(),
+            check("body", "Body text is required").not().isEmpty()
+        ]
+    ],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(400).json({errors: errors.array()});
+        } else {
+            const { title, body } = req.body;
+            try{
+                //get the user who created the post
+                const user = await User.findById(req.user.id);
+
+                //create a new post
+                const post = new Post({
+                    user: user.id,
+                    title: title,
+                    body: body
+                });
+
+                //save post to db and return
+                await post.save();
+                res.json(post);
+
+            }catch(error){
+                console.error(error);
+                res.status(500).send("Server error");
+            }
+        }
+    }
+    
+);
+
+app.get("/api/posts", auth, async (req, res) => {
+    try {
+        const posts = await Post.find().sort({date: -1});
+        res.json(posts);
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Server error");
+        
+    }
+});
+
+app.get("/api/posts/:id", auth, async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+
+        if (!post) {
+            return res.status(404).json({msg: "Post not found."});
+        }
+
+        res.json(post);
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Server error");
+        
+    }
+});
+
+app.delete("/api/posts/:id", auth, async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+
+        //make sure post exist
+        if (!post) {
+            return res.status(404).json({msg: "Post not found."});
+        }
+
+        //make sure the user created the post
+        if (post.user.toString() !== req.user.id) {
+            return res.status(401).json({msg: "User not authorized."});
+        }
+
+        await post.remove();
+        res.json({msg: "Post removed"});
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Server error");
+    }
+});
+
+app.put("/api/posts/:id", auth, async (req, res) => {
+    try {
+        const {title, body} = req.body;
+        const post = await Post.findById(req.params.id);
+
+        //make sure post exist
+        if (!post) {
+            return res.status(404).json({msg: "Post not found."});
+        }
+
+        //make sure the user created the post
+        if (post.user.toString() !== req.user.id) {
+            return res.status(401).json({msg: "User not authorized."});
+        }
+
+        //update post and return
+        post.title = title || post.title;
+        post.body = body || post.body;
+
+        await post.save();
+        res.json(post);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Server error");
+    }
+});
 
 //connection listener
 const port = 5000;
