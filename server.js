@@ -155,12 +155,11 @@ app.post("/api/posts",
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             res.status(400).json({errors: errors.array()});
-        }
-        else{
-            const {tile, body} = req.body;
+        } else {
+            const { title, body } = req.body;
             try{
                 //get the user who created the post
-                const user = await User.findOne(req.user.id);
+                const user = await User.findById(req.user.id);
 
                 //create a new post
                 const post = new Post({
@@ -172,6 +171,7 @@ app.post("/api/posts",
                 //save post to db and return
                 await post.save();
                 res.json(post);
+
             }catch(error){
                 console.error(error);
                 res.status(500).send("Server error");
