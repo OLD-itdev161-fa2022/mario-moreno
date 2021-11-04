@@ -233,6 +233,34 @@ app.delete("/api/posts/:id", auth, async (req, res) => {
     }
 });
 
+app.put("/api/posts/:id", auth, async (req, res) => {
+    try {
+        const {title, body} = req.body;
+        const post = await Post.findById(req.params.id);
+
+        //make sure post exist
+        if (!post) {
+            return res.status(404).json({msg: "Post not found."});
+        }
+
+        //make sure the user created the post
+        if (post.user.toString() !== req.user.id) {
+            return res.status(401).json({msg: "User not authorized."});
+        }
+
+        //update post and return
+        post.title = title || post.title;
+        post.body = body || post.body;
+
+        await post.save();
+        res.json(post);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Server error");
+    }
+});
+
 //connection listener
 const port = 5000;
 app.listen(port, () => console.log(`express server running on port ${port}`));
