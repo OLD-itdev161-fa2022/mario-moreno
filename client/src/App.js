@@ -9,13 +9,12 @@ import {BrowserRouter as Router, Switch, Route, Link} from "react-router-dom";
 class App extends React.Component{
 
   state = {
-    posts: null,
+    posts: [],
     token: null,
     user: null
   }
 
   componentDidMount(){
-
     this.authenticateUser();
 }
 
