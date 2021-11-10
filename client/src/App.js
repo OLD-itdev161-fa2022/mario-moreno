@@ -9,20 +9,13 @@ import {BrowserRouter as Router, Switch, Route, Link} from "react-router-dom";
 class App extends React.Component{
 
   state = {
-    data: null,
+    posts: null,
     token: null,
     user: null
   }
 
   componentDidMount(){
-  axios.get("http://localhost:5000")
-    .then((response) => {
-      this.setState({
-        data: response.data})
-    })
-    .catch((error) => {
-      console.log(`Error fetching data: ${error}`)
-    })
+
     this.authenticateUser();
 }
 
@@ -42,12 +35,38 @@ authenticateUser = () => {
     axios.get("http://localhost:5000/api/auth", config)
     .then((response) => {
       localStorage.setItem("user", response.data.name)
-      this.setState({user: response.data.name})
+      this.setState({
+        user: response.data.name,
+        token: token
+      }, () => {
+        this.loadData();
+      }
+      );
     })
     .catch((error) => {
       localStorage.removeItem("user");
       this.setState({user: null});
       console.error(`Error logging in: ${error}`);
+    });
+  }
+}
+
+loadData = () => {
+  const {token} = this.state;
+  if (token) {
+    const config = {
+      headers:{
+        "x-auth-token": token
+      }
+    };
+    axios.get("http://localhost:5000/api/posts", config)
+    .then((response) => {
+      this.setState({
+        posts: response.data
+      });
+    })
+    .catch((error) => {
+      console.log(`Error fetching data: ${error}`)
     });
   }
 }
@@ -60,7 +79,7 @@ logOut = () => {
 
 //render starts
   render(){
-    let {user, data} = this.state;
+    let {user, posts} = this.state;
     const authProps ={ 
       authenticateUser: this.authenticateUser
     }
@@ -89,9 +108,16 @@ logOut = () => {
             user ?
             <React.Fragment>
               <div>Hello {user} </div>
-              <div>{data}</div>
+              <div>
+                {posts.map(post => (
+                  <div key = {posts._id}>
+                  <h1>{post.title}</h1>
+                  <p>{post.body}</p>
+                  </div>
+                ))}
+              </div>
             </React.Fragment>:
-             <React.Fragment>
+            <React.Fragment>
               Please Register or Login
             </React.Fragment>
           }
