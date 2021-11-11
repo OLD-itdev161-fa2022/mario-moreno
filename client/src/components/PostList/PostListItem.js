@@ -20,8 +20,8 @@ const PostListItem = (props) => {
             <h2>{post.title}</h2>
             <p>{post.body}</p>
             </div>
-            <div className ="postControls">
-                <button onClick = {()=> deletePost(post)}>Delete</button>
+            <div className = "postControls">
+                <button onClick ={()=> deletePost(post)}>Delete</button>
             </div>
         </div>
     );

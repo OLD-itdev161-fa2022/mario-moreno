@@ -7,8 +7,8 @@ const PostList = (props) => {
         <PostListItem 
         key= {post._id}
         post = {post}
-        clickPost = {clickPost} 
-        deletePost = {deletePost}/>
+        clickPost = {clickPost}
+        deletePost ={deletePost} />
     ));
 };
 
