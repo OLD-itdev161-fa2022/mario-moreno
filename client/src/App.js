@@ -5,14 +5,17 @@ import "./App.css";
 import Login from "./components/Login/Login";
 import Register from "./components/Register/Register";
 import {BrowserRouter as Router, Switch, Route, Link} from "react-router-dom";
+import PostList from "./components/PostList/PostList";
+import Post from "./components/Post/Post";
 
-class App extends React.Component{
+class App extends React.Component {
 
   state = {
     posts: [],
+    post: null,
     token: null,
     user: null
-  }
+  };
 
   componentDidMount(){
     this.authenticateUser();
@@ -70,6 +73,13 @@ loadData = () => {
   }
 }
 
+viewPost = (post) => {
+  console.log(`view ${post.title}`);
+  this.setState({
+    post: post
+  });
+}
+
 logOut = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
@@ -78,7 +88,7 @@ logOut = () => {
 
 //render starts
   render(){
-    let {user, posts} = this.state;
+    let {user, posts, post} = this.state;
     const authProps ={ 
       authenticateUser: this.authenticateUser
     }
@@ -102,32 +112,28 @@ logOut = () => {
           </ul>
         </header>
         <main>
+          <Switch>
           <Route exact path="/">
-          {
-            user ?
+          {user ? (
             <React.Fragment>
               <div>Hello {user} </div>
-              <div>
-                {posts.map(post => (
-                  <div key = {posts._id}>
-                  <h1>{post.title}</h1>
-                  <p>{post.body}</p>
-                  </div>
-                ))}
-              </div>
-            </React.Fragment>:
+              <PostList posts = {posts} clickPost = {this.viewPost}/>
+            </React.Fragment>
+          ) : (
             <React.Fragment>
               Please Register or Login
             </React.Fragment>
-          }
+          )}
           </Route>
-          <Switch>
-            <Route 
-              exact path="/register" 
+          <Route path ="/posts/:postId">
+          <Post post = {post}/>
+          </Route>
+          
+            <Route exact path="/register" 
               render = {() => <Register {...authProps}/>}/>
-            <Route 
-            exact path="/login" 
+            <Route exact path="/login" 
             render = {() => <Login {...authProps}/>}/>
+
           </Switch>
         </main>
       </div>
