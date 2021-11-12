@@ -101,7 +101,6 @@ deletePost = post => {
     .catch(error => {
       console.log(`Error deleting post: ${error}`);
     });
-    
   }
 }
 
