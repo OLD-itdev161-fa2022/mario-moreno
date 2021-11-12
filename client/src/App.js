@@ -7,6 +7,8 @@ import Register from "./components/Register/Register";
 import {BrowserRouter as Router, Switch, Route, Link} from "react-router-dom";
 import PostList from "./components/PostList/PostList";
 import Post from "./components/Post/Post";
+import CreatePost from "./components/Post/CreatePost";
+import EditPost from "./components/Post/EditPost";
 
 class App extends React.Component {
 
@@ -103,6 +105,30 @@ deletePost = post => {
   }
 }
 
+editPost = post => {
+  this.setState({
+    post: post
+  });
+}
+
+onPostCreated = post => {
+  const newPosts = [...this.state.posts, post];
+  
+  this.setState({
+    posts: newPosts
+  });
+}
+
+onPostUpdate = post => {
+  console.log("updated post: ", post);
+  const newPosts = [...this.state.posts];
+  const index = newPosts.findIndex(p => p._id === post._id);
+
+  newPosts[index] = post;
+  this.setState({
+    posts: newPosts
+  });
+}
 
 logOut = () => {
   localStorage.removeItem("token");
@@ -112,8 +138,8 @@ logOut = () => {
 
 //render starts
   render(){
-    let {user, posts, post} = this.state;
-    const authProps ={ 
+    let {user, posts, post, token} = this.state;
+    const authProps = { 
       authenticateUser: this.authenticateUser
     }
     return(
@@ -126,7 +152,8 @@ logOut = () => {
               <Link to ="/">Home</Link>
             </li>
             <li>
-              <Link to ="/register">Register</Link>
+              {user ? (<Link to ="/new-post">New Post</Link>) : 
+              (<Link to ="/register">Register</Link>)}
             </li>
             <li>
             {user ? <Link to= "" onClick = {this.logOut}>Log out</Link> :
@@ -138,10 +165,14 @@ logOut = () => {
         <main>
           <Switch>
           <Route exact path="/">
-          {user ? (
+          { user ? (
             <React.Fragment>
-              <div>Hello {user} </div>
-              <PostList posts = {posts} clickPost = {this.viewPost} deletePost = {this.deletePost}/>
+              <div className ="greeting">Hello {user} </div>
+              <PostList 
+                posts = {posts} c
+                clickPost = {this.viewPost} 
+                deletePost = {this.deletePost}
+                editPost = {this.editPost}/>
             </React.Fragment>
           ) : (
             <React.Fragment>
@@ -149,14 +180,26 @@ logOut = () => {
             </React.Fragment>
           )}
           </Route>
+
           <Route path ="/posts/:postId">
-          <Post post = {post}/>
+            <Post post = {post}/>
+          </Route>
+
+          <Route path = "/new-post">
+            <CreatePost token ={token} onPostCreated = {this.onPostCreated}/>
+          </Route>
+
+          <Route path ="/edit-post/:postId">
+            <EditPost token ={token} post= {post} onPostUpdated ={this.onPostUpdate}/>
           </Route>
           
-            <Route exact path="/register" 
-              render = {() => <Register {...authProps}/>}/>
-            <Route exact path="/login" 
-            render = {() => <Login {...authProps}/>}/>
+          <Route exact path="/register" 
+            render = {() => <Register {...authProps}/>}
+          />
+          
+          <Route exact path="/login" 
+          render = {() => <Login {...authProps}/>}
+          />
 
           </Switch>
         </main>

@@ -54,8 +54,8 @@ const CreatePost = ({token, onPostCreated}) => {
     return (
         <div className ="form-container">
             <h2>Create New Post</h2>
-            <input name = "title" type = "text" placeholder = "Title" value = {title} onChange = {e => onChange(e)} />
-            <textarea name="body" cols="30" rows="10" value = {body} onChange = {e => onChange(e)}></textarea>
+            <input name = "title" type = "text" placeholder = "title" value = {title} onChange = {e => onChange(e)} />
+            <textarea name="body" cols="30" rows="10" placeholder ="tell me something " value = {body} onChange = {e => onChange(e)}></textarea>
             <button onClick = {()=> create()}>Submit</button>
         </div>
     );

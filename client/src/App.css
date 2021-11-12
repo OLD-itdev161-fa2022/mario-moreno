@@ -13,7 +13,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
-  font-size: calc(10px + 2vmin);
+  font-size: calc(10px + 1vmin);
   padding-left: 30px;
   color: white;
 }
@@ -48,8 +48,15 @@
 main{
   margin: 30px;
 }
+
+.greeting{
+  margin-bottom: 20px;
+  font-size: 2rem;
+  font-weight: bold;
+}
 input{
-  margin: .5em auto;
+  margin: .5em 0;
+  padding: 5px;
   min-width: 300px;
   height: 30px;
 }
@@ -58,11 +65,4 @@ button{
   padding: 1em 2em;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+

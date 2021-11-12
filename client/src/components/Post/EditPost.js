@@ -5,12 +5,13 @@ import "./styles.css";
 
 
 const EditPost = ({token, post, onPostUpdated}) => {
-    const history = useHistory();
+    let history = useHistory();
     const [postData, setPostData] = useState({
-        title: "",
-        body: ""
+        title: post.title,
+        body: post.body
     });
     const {title, body} = postData;
+
     const onChange = e => {
         const {name, value} = e.target;
         setPostData({
@@ -37,7 +38,7 @@ const EditPost = ({token, post, onPostUpdated}) => {
                 };
 
                 const body = JSON.stringify(newPost);
-                const res = await axios.post(
+                const res = await axios.put(
                     `http://localhost:5000/api/posts/${post._id}`, body, config
                 );
 
