@@ -13,10 +13,10 @@ const CreatePost = ({token, onPostCreated}) => {
     const {title, body} = postData;
     const onChange = e => {
         const {name, value} = e.target;
-         setPostData({
-             ...postData,
-             [name]: value
-         });
+        setPostData({
+            ...postData,
+            [name]: value
+        });
     }
 
     const create = async () => {
