@@ -8,6 +8,7 @@ import config from "config";
 import User from "./models/User";
 import auth from "./middleware/auth";
 import Post from "./models/Post";
+import path from "path";
 
 //initialize express application
 const app = express();
@@ -21,16 +22,6 @@ app.use(
     cors({
         origin: "http://localhost:3000"
     })
-);
-
-//API endpoints
-/** 
- * @route GET/
- * @desc Test end point
-*/
-
-app.get("/", (req, res) => 
-    res.send("http get request sent to root api endpoint")
 );
 
 /** 
@@ -261,6 +252,18 @@ app.put("/api/posts/:id", auth, async (req, res) => {
     }
 });
 
+//serve build files
+if (process.env.NODE_ENV === "production") {
+    //set the build folder
+    app.use(express.static("client/build"));
+
+    //route all the quests
+    app.get("*", (req, res) =>{
+        res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+    });
+}
+
+
 //connection listener
-const port = 5000;
+const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`express server running on port ${port}`));
